@@ -1,0 +1,100 @@
+name: Migrate clean Hexo snapshot
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout migration workflow
+        uses: actions/checkout@v4
+
+      - name: Import latest GitLab snapshot
+        run: |
+          git clone --depth 1 https://gitlab.com/sphc/sphc.gitlab.io.git /tmp/legacy
+          rm -rf /tmp/legacy/.git /tmp/legacy/.gitlab-ci.yml
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/legacy/. .
+          sed -i '/^deploy:$/,+1d; /^  token:/d; /^#algolia:/d; /^#applicationID:/d; /^#apiKey:/d; /^#indexName:/d' _config.yml
+          mkdir -p .github/workflows
+          cat > .github/workflows/pages.yml <<'EOF'
+          name: Deploy Hexo site to GitHub Pages
+
+          on:
+            push:
+              branches: [master]
+            workflow_dispatch:
+
+          permissions:
+            contents: read
+            pages: write
+            id-token: write
+
+          concurrency:
+            group: pages
+            cancel-in-progress: true
+
+          jobs:
+            build:
+              runs-on: ubuntu-22.04
+              steps:
+                - name: Checkout
+                  uses: actions/checkout@v4
+
+                - name: Setup Node.js
+                  uses: actions/setup-node@v4
+                  with:
+                    node-version: 11.14.0
+                    cache: npm
+
+                - name: Install Hexo CLI
+                  run: npm install --global hexo-cli@2.0.0
+
+                - name: Install dependencies
+                  run: npm ci
+
+                - name: Build site
+                  run: |
+                    hexo clean
+                    hexo generate
+                    cp source/CNAME public/CNAME
+
+                - name: Setup Pages
+                  uses: actions/configure-pages@v5
+
+                - name: Upload Pages artifact
+                  uses: actions/upload-pages-artifact@v3
+                  with:
+                    path: public
+
+            deploy:
+              needs: build
+              runs-on: ubuntu-22.04
+              environment:
+                name: github-pages
+                url: ${{ steps.deployment.outputs.page_url }}
+              steps:
+                - name: Deploy to GitHub Pages
+                  id: deployment
+                  uses: actions/deploy-pages@v4
+          EOF
+
+      - name: Verify clean snapshot
+        run: |
+          test ! -e .gitlab-ci.yml
+          if grep -E '^(deploy:|  token:|#algolia:|#applicationID:|#apiKey:)' _config.yml; then
+            echo "Legacy deployment credentials remain"
+            exit 1
+          fi
+
+      - name: Commit clean snapshot
+        run: |
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Migrate clean Hexo snapshot"
+          git push origin main
