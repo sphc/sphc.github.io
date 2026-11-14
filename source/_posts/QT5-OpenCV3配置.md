@@ -1,0 +1,125 @@
+---
+title: QT5+OpenCV3配置
+mathjax: true
+toc: true
+categories: 计算机视觉
+tags:
+  - Qt
+  - OpenCV
+abbrlink: 435b2c15
+date: 2019-04-26 19:06:50
+---
+## 缘由
+我在配置OpenCV的时候查阅了很多的教程，发现有些教程不怎么详细，这也导致我在配置的时候花了很多时间，因此打算写这篇文章，一来记录自己配置的过程，以便以后需要配置的时候查看，二来也希望可以给和我遇到同样问题的人提供帮助。
+
+## 环境
+我使用的环境和工具版本如下：
+* Windows 10 64位
+* Qt 5.12.0(MinGW 64-bit)
+* OpenCV 3.4.6
+* CMake 3.14.3-win64-x64
+
+## 说明
+关于Qt、CMake等的安装我就不介绍了，这些都比较简单。我将Qt和OPenCV放在了这里，opencvBuild是我自己创建的空文件夹。
+![](https://i.loli.net/2019/04/27/5cc4083ce95a6.png)
+
+## 配置环境变量
+安装好需要的软件后，首先需要配置CMake和Qt的环境变量（请根据自己的路径配置）。如下所示：
+![](https://i.loli.net/2019/04/27/5cc40859ee6ac.png)
+
+配置好环境变量后，重启系统使之生效。
+
+## 配置CMake
+首先，打开CMake，设置路径（请根据自己的路径设置），如下：
+![](https://i.loli.net/2019/04/27/5cc4087e867fb.png)
+
+然后点击Configure，选择如下选项。
+![](https://i.loli.net/2019/04/27/5cc40887f09b6.png)
+
+点击Next，接下来会让你选择编译器，我的路径为：
+    D:\Qt\Qt5.12.0\Tools\mingw730_64\bin\gcc.exe
+    D:\Qt\Qt5.12.0\Tools\mingw730_64\bin\g++.exe
+选择如下：
+![](https://i.loli.net/2019/04/27/5cc408956d3f4.png)
+
+然后点击Finish，等待配置。
+![](https://i.loli.net/2019/04/27/5cc408a09db9b.png)
+
+配置完后，得到如下界面。
+![](https://i.loli.net/2019/04/27/5cc408ac27294.png)
+
+选中“WITH_OPENGL”、“WITH_QT”，取消“WITH_IPP”。然后点Configure。这时会出现错误。
+![](https://i.loli.net/2019/04/27/5cc408b4adc44.png)
+
+点击OK，然后会看到如下所示的红色部分。
+![](https://i.loli.net/2019/04/27/5cc408c13fd25.png)
+
+修改如下（请根据自己的路径配置）：
+![](https://i.loli.net/2019/04/27/5cc408d6d3f7a.png)
+
+然后点击Configure。又出现了一个新的红色。
+![](https://i.loli.net/2019/04/27/5cc408ee11851.png)
+
+修改如下（根据自己的路径修改）：
+![](https://i.loli.net/2019/04/27/5cc408faaf1de.png)
+
+点击Configure。运行结束后，点击Generate。
+
+## 编译OpenCV
+接下来编译OpenCV，首先进入之前创建的目录opencvBuild，然后Shift+右键，选择“在此处打开Powershell窗口”。
+![](https://i.loli.net/2019/04/27/5cc4091ca509c.png)
+
+输入“mingw32-make”，回车。等待编译。
+![](https://i.loli.net/2019/04/27/5cc409278ae3d.png)
+
+30%的时候，出现了这样的错误。
+![](https://i.loli.net/2019/04/27/5cc409333e046.png)
+
+根据搜索，我发现是D:\Qt\opencv3_46\sources\cmake中的OpenCVDetectOpenCL.cmake和OpenCVDetectDirectX.cmake被更新了，但我这里的依然是旧的版本。因此，只需到[https://github.com/opencv/opencv/tree/master/cmake](https://github.com/opencv/opencv/tree/master/cmake)把这两个文件下载下来，然后覆盖目录中的文件。我这里通过复制Github上的文件内容，粘贴到我的目录中的相应文件（将文件内容删除，然后粘贴）。
+![](https://i.loli.net/2019/04/27/5cc4094d3c47f.png)
+![](https://i.loli.net/2019/04/27/5cc4095323940.png)
+
+然后再到Powershell中执行mingw32-make，这下就可以了。
+![](https://i.loli.net/2019/04/27/5cc4095dd08cb.png)
+
+等它到100%(比较慢，要好长一段时间)。
+![](https://i.loli.net/2019/04/27/5cc409673135d.png)
+
+编译完成后，输入“mingw32-make install”，回车，结束后就可以关闭窗口了。
+![](https://i.loli.net/2019/04/27/5cc4097203999.png)
+
+## 配置环境变量
+新建目录opencvBuildLib，随便建在哪里，我这里建在Qt目录下。
+![](https://i.loli.net/2019/04/27/5cc4097aa66ee.png)
+
+将D:\Qt\opencv3_46\build\include、D:\Qt\opencvBuild\bin和D:\Qt\opencvBuild\lib复制到opencvBuildLib（有这些就够了，为了节省空间，build和opencvBuild都可以删除了），然后将目录opencvBuildLib中的bin目录添加到环境变量中。
+![](https://i.loli.net/2019/04/27/5cc40985b9c36.png)
+
+然后重启电脑。
+
+## 配置Qt
+打开Qt，新建项目，在.pro文件中添加（根据自己的路径添加）：
+![](https://i.loli.net/2019/04/27/5cc4099d7119f.png)
+
+到这里配置就结束了，之后每次新建OpenCV项目的时候都需要将上述内容添加到.pro文件。
+
+## 测试
+编写如下测试代码。
+```cpp
+#include <opencv2/opencv.hpp>
+
+using namespace cv;
+
+int main(int argc, char *argv[])
+{
+    Mat image;
+    image=imread("E:\\sphc.png");//括号里更改为自己图像的路径
+    namedWindow("显示");
+    imshow("显示",image);
+    waitKey(0);
+    return 0;
+}
+
+```
+编译运行，结果表明，配置成功。
+![](https://i.loli.net/2019/04/27/5cc409a894544.png)

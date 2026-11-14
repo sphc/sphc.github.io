@@ -1,0 +1,94 @@
+---
+title: PAT 1001.A+B Format
+mathjax: true
+toc: true
+categories: 'PAT题解[甲级]'
+tags:
+  - PAT
+abbrlink: c0252f49
+date: 2018-02-01 14:33:08
+---
+## 题目
+Calculate a + b and output the sum in standard format -- that is, the digits must be separated into groups of three by commas (unless there are less than four digits).
+
+**Input**
+
+Each input file contains one test case. Each case contains a pair of integers a and b where -1000000 <= a, b <= 1000000. The numbers are separated by a space.
+
+**Output**
+
+For each test case, you should output the sum of a and b in one line. The sum must be written in the standard format.
+
+**Sample Input**
+
+-1000000 9
+
+**Sample Output**
+
+-999,991
+
+## 我的解决方案
+```cpp
+#include <iostream>
+
+//解题思路:
+//1.计算这两个数的和
+//2.通过递归打印
+//递归的时候记录当前位置,若该位置后的数的个数能被3整除,则打印逗号
+
+using namespace std;
+
+//正整数的长度
+int lenOfNum(int num)
+{
+    int len = 0;
+    
+    while (num) {
+        num /= 10;
+        ++len;
+    }
+
+    return len;
+}
+
+void _print(int num, int len, int &count)
+{
+    if (num) {
+        _print(num / 10, len, count);
+        cout << num % 10;
+        //若后面的数的个数能被3整除则打印逗号
+        if (++count != len && (len - count) % 3 == 0) {
+            cout << ",";
+        }
+    }
+}
+
+void printFormat(int num)
+{
+    int count = 0; //已打印数的个数
+    int len = lenOfNum(num);
+
+    if (num < 0) {
+        cout << "-";
+        num = -num;
+    }
+
+    if (num == 0) {
+        cout << "0";
+    }
+    else {
+        _print(num, len, count);
+    }
+}
+
+int main()
+{
+    int a, b;
+
+    cin >> a >> b;
+    printFormat(a + b);
+    cout << endl;
+
+    return 0;
+}
+```

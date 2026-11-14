@@ -1,0 +1,145 @@
+---
+title: PAT 1025.反转链表
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: f0185c0b
+date: 2017-12-17 00:12:16
+---
+## 题目
+给定一个常数K以及一个单链表L，请编写程序将L中每K个结点反转。例如：给定L为1→2→3→4→5→6，K为3，则输出应该为3→2→1→6→5→4；如果K为4，则输出应该为4→3→2→1→5→6，即最后不到K个元素不反转。
+
+**输入格式：**
+
+每个输入包含1个测试用例。每个测试用例第1行给出第1个结点的地址、结点总个数正整数N(<= 10<sup>5</sup>)、以及正整数K(<=N)，即要求反转的子链结点的个数。结点的地址是5位非负整数，NULL地址用-1表示。
+
+接下来有N行，每行格式为：
+
+Address Data Next
+
+其中Address是结点地址，Data是该结点保存的整数数据，Next是下一结点的地址。
+
+**输出格式：**
+
+对每个测试用例，顺序输出反转后的链表，其上每个结点占一行，格式与输入相同。
+
+**输入样例：**
+
+00100 6 4
+00000 4 99999
+00100 1 12309
+68237 6 -1
+33218 3 00000
+99999 5 68237
+12309 2 33218
+
+**输出样例：**
+00000 4 33218
+33218 3 12309
+12309 2 00100
+00100 1 99999
+99999 5 68237
+68237 6 -1
+
+## 我的解决方案
+```c
+#include <stdio.h>
+#include <stdbool.h>
+
+#define null -1
+
+typedef struct {
+    int value;
+    int next;
+} Node;
+
+typedef struct {
+    int capacity[100010];
+    int top;
+} Stack;
+
+void initStack(Stack *stack)
+{ stack->top = 0; }
+
+void push(Stack *stack, int address)
+{ stack->capacity[stack->top++] = address; }
+
+int getTop(const Stack *stack)
+{ return stack->capacity[stack->top - 1]; }
+
+int pop(Stack *stack)
+{ return stack->capacity[--stack->top]; }
+
+bool isEmpty(const Stack *stack)
+{ return stack->top == 0; }
+
+void setValue(Node *node, int value)
+{ node->value = value; }
+
+void setNext(Node *node, int next)
+{ node->next = next; }
+
+int getValue(const Node *node)
+{ return node->value; }
+
+int getNext(const Node *node)
+{ return node->next; }
+
+//打印链表，head为头指针
+void printList(const Node *node, int head)
+{
+    while (head != null) {
+        printf("%.5d %d ", head, getValue(node + head));
+        printf(getNext(node + head) != null ? "%.5d" : "%d", getNext(node + head));
+        printf("\n");
+        head = getNext(node + head);
+    }
+}
+
+//当链表用，下标表示地址
+Node a[100010];
+
+int main(void)
+{
+    int address, n, k;
+    int head; //保存第一个节点地址
+    int count = 0; //计数器
+    Stack stack;
+    int last = 100002; //作为反转后的链表的头结点
+
+    initStack(&stack);
+    scanf("%d%d%d", &head, &n, &k);
+    for (int i = 0; i < n; ++i) {
+        scanf("%d", &address);
+        scanf("%d", &a[address].value);
+        scanf("%d", &a[address].next);
+    }
+
+    //每次往栈中push k个元素，然后反转链接
+    while (head != null) {
+        push(&stack, head);
+        head = getNext(a + head);
+        if (++count % k == 0) {
+            while (!isEmpty(&stack)) {
+                setNext(a + last, pop(&stack));
+                last = getNext(a + last);
+            }
+        }
+    }
+    setNext(a + last, null);
+    //此时若栈不为空，则栈顶保存剩余链表的最后一个节点，将其next指针置空
+    if (!isEmpty(&stack)) {
+        setNext(a + getTop(&stack), null);
+    }
+    //链接剩余链表
+    while (!isEmpty(&stack)) {
+        setNext(a + last, pop(&stack));
+    }
+    //之前已经将100002作为头结点下标，从头结点的下一个节点开始打印
+    printList(a, getNext(a + 100002)); 
+
+    return 0;
+}
+```

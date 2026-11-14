@@ -1,0 +1,90 @@
+---
+title: PAT 1048.数字加密
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: 43b3e77
+date: 2017-12-23 13:44:18
+---
+## 题目
+本题要求实现一种数字加密方法。首先固定一个加密用正整数A，对任一正整数B，将其每1位数字与A的对应位置上的数字进行以下运算：对奇数位，对应位的数字相加后对13取余——这里用J代表10、Q代表11、K代表12；对偶数位，用B的数字减去A的数字，若结果为负数，则再加10。这里令个位为第1位。
+
+**输入格式：**
+
+输入在一行中依次给出A和B，均为不超过100位的正整数，其间以空格分隔。
+
+**输出格式：**
+
+在一行中输出加密后的结果。
+
+**输入样例：**
+
+1234567 368782971
+
+**输出样例：**
+
+3695Q8118
+
+## 我的解决方案
+```c
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+
+//十三进制的表示
+const char *thirteen = "0123456789JQK";
+
+//字符转整数
+int ctoi(int c)
+{ return c - '0'; }
+
+int main(void)
+{
+    char a[1010], b[1010];
+    char result[1010];
+    int alen, blen; //a的长度，b的长度
+    int pos = 1; //位置,用以判断是奇数位还是偶数位
+    int difference;
+    char *p, *q, *r;
+
+    scanf("%s%s", a, b);
+    alen = strlen(a);
+    blen = strlen(b);
+    difference = fabs(blen - alen);
+    r = result;
+    //长度短的数高位补0
+    while (difference--) {
+        *r++ = '0';
+    }
+    if (blen < alen) {
+        strcpy(r, b);
+        strcpy(b, result);
+        blen = strlen(b);
+    }
+    else {
+        strcpy(r, a);
+        strcpy(a, result);
+        alen = strlen(a);
+    }
+
+    p = a + alen - 1;
+    q = b + blen - 1;
+    r = result + blen - 1;
+    while (r >= result) {
+        int tmp;
+
+        if (pos++ % 2) {
+            tmp = (ctoi(*p--) + ctoi(*q--)) % 13;
+        }
+        else if ((tmp = ctoi(*q--) - ctoi(*p--)) < 0) {
+            tmp += 10;
+        }
+        *r-- = thirteen[tmp];
+    }
+    printf("%s\n", result);
+
+    return 0;
+}
+```

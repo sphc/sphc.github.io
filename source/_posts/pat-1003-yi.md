@@ -1,0 +1,176 @@
+---
+title: PAT 1003.我要通过!
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: 38ecf816
+date: 2018-01-21 16:56:18
+---
+## 题目
+“答案正确”是自动判题系统给出的最令人欢喜的回复。本题属于PAT的“答案正确”大派送 —— 只要读入的字符串满足下列条件，系统就输出“答案正确”，否则输出“答案错误”。
+
+得到“答案正确”的条件是：
+
+1. 字符串中必须仅有P, A, T这三种字符，不可以包含其它字符；
+2. 任意形如 xPATx 的字符串都可以获得“答案正确”，其中 x 或者是空字符串，或者是仅由字母 A 组成的字符串；
+3. 如果 aPbTc 是正确的，那么 aPbATca 也是正确的，其中 a, b, c 均或者是空字符串，或者是仅由字母 A 组成的字符串。
+
+现在就请你为PAT写一个自动裁判程序，判定哪些字符串是可以获得“答案正确”的。
+
+**输入格式：** 每个测试输入包含1个测试用例。第1行给出一个自然数n (<10)，是需要检测的字符串个数。接下来每个字符串占一行，字符串长度不超过100，且不包含空格。
+
+**输出格式：** 每个字符串的检测结果占一行，如果该字符串可以获得“答案正确”，则输出YES，否则输出NO。
+
+**输入样例：**
+
+8
+PAT
+PAAT
+AAPATAA
+AAPAATAAAA
+xPATx
+PT
+Whatever
+APAAATAA
+
+**输出样例：**
+
+YES
+YES
+YES
+YES
+NO
+NO
+NO
+NO
+
+## 我的解决方案 
+```c
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+const int SIZE = 110;
+
+//计算s开始连续的A的数量,并将s指向第一个不是A的字符
+int countA(const char **s)
+{
+    int count = 0;
+
+    while (**s && **s == 'A') {
+        ++count;
+        ++*s;
+    }
+
+    return count;
+}
+
+//读取一行到s中，并丢弃换行符
+void getLine(char *s, int size)
+{
+    int len;
+
+    fgets(s, size, stdin);
+    len = strlen(s);
+    //丢弃末尾换行
+    if (len > 0) {
+        s[len - 1] = '\0';
+    }
+}
+
+bool condition1(const char *s)
+{
+    while (*s && (*s == 'P' || *s == 'A' || *s == 'T')) {
+        ++s;
+    }
+
+    return *s == '\0';
+}
+
+bool condition2(const char *s)
+{
+    int x;
+    //前缀A
+    x = countA(&s);
+    //中间的PAT
+    if (*s && *s == 'P') {
+        ++s;
+    }
+    else {
+        return false;
+    }
+    if (*s && *s == 'A') {
+        ++s;
+    }
+    else {
+        return false;
+    }
+    if (*s && *s == 'T') {
+        ++s;
+    }
+    else {
+        return false;
+    }
+
+    return x == countA(&s);
+}
+
+bool condition3(const char *s)
+{
+    const char *aPbATca = s;
+    char aPbTc[SIZE];
+    int a, b, c, ca;
+    int size = 0;
+
+    a = countA(&s);
+    //使s指向P后面的字符
+    ++s;
+    b = countA(&s) - 1;
+    //使s指向T后面的字符
+    ++s;
+    ca = countA(&s);
+    c = ca - a;
+
+    if (b < 0) {
+        return false;
+    }
+    
+    //构造aPbTc
+    for (int i = 0; i < a; ++i) {
+        aPbTc[size++] = 'A';
+    }
+    aPbTc[size++] = 'P';
+    for (int i = 0; i < b; ++i) {
+        aPbTc[size++] = 'A';
+    }
+    aPbTc[size++] = 'T';
+    for (int i = 0; i < c; ++i) {
+        aPbTc[size++] = 'A';
+    }
+    aPbTc[size] = '\0';
+
+    return condition2(aPbTc) || condition3(aPbTc);
+}
+
+int main(void)
+{
+    int n;
+    char s[SIZE];
+
+    scanf("%d", &n);
+    getchar();
+    while (n--) {
+        getLine(s, SIZE);
+        if (condition1(s) && (condition2(s) || condition3(s))) {
+            printf("YES\n");
+        }
+        else {
+            printf("NO\n");
+        }
+    }
+
+    return 0;
+}
+```

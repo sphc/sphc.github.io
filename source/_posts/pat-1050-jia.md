@@ -1,0 +1,64 @@
+---
+title: PAT 1050.String Subtraction
+mathjax: true
+toc: true
+categories: 'PAT题解[甲级]'
+tags:
+  - PAT
+abbrlink: 8c5826eb
+date: 2018-02-12 19:27:55
+---
+## 题目
+Given two strings S<sub>1</sub> and S<sub>2</sub>, S = S<sub>1</sub> - S<sub>2</sub> is defined to be the remaining string after taking all the characters in S<sub>2</sub> from S<sub>1</sub>. Your task is simply to calculate S<sub>1</sub> - S<sub>2</sub> for any given strings. However, it might not be that simple to do it fast.
+
+**Input Specification:**
+
+Each input file contains one test case. Each case consists of two lines which gives S<sub>1</sub> and S<sub>2</sub>, respectively. The string lengths of both strings are no more than 10<sup>4</sup>. It is guaranteed that all the characters are visible ASCII codes and white space, and a new line character signals the end of a string.
+
+**Output Specification:**
+
+For each test case, print S<sub>1</sub> - S<sub>2</sub> in one line.
+
+**Sample Input:**
+
+They are students.
+aeiou
+
+**Sample Output:**
+
+Thy r stdnts.
+
+## 我的解决方案
+```cpp
+#include <iostream>
+#include <string>
+#include <set>
+#include <cctype>
+
+//解题思路:
+//1.用string保存s1,set保存s2
+//2.遍历s1,若s2中有,则不打印
+
+using namespace std;
+
+int main()
+{
+    string s1;
+    set<char> s2;
+    char c;
+    
+    getline(cin, s1);
+    while ((c = cin.get()) != '\n') {
+        s2.insert(c);
+    }
+
+    for (auto x : s1) {
+        if (s2.find(x) == s2.end()) {
+            cout << x;
+        }
+    }
+    cout << endl;
+
+    return 0;
+}
+```

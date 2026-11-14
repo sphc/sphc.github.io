@@ -1,0 +1,249 @@
+---
+title: PAT 1034.有理数四则运算
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: e578c55f
+date: 2017-12-19 23:37:44
+---
+## 题目
+本题要求编写程序，计算2个有理数的和、差、积、商。
+
+**输入格式：**
+
+输入在一行中按照“a1/b1 a2/b2”的格式给出两个分数形式的有理数，其中分子和分母全是整型范围内的整数，负号只可能出现在分子前，分母不为0。
+
+**输出格式：**
+
+分别在4行中按照“有理数1 运算符 有理数2 = 结果”的格式顺序输出2个有理数的和、差、积、商。注意输出的每个有理数必须是该有理数的最简形式“k a/b”，其中k是整数部分，a/b是最简分数部分；若为负数，则须加括号；若除法分母为0，则输出“Inf”。题目保证正确的输出中没有超过整型范围的整数。
+
+**输入样例1：**
+
+2/3 -4/2
+
+**输出样例1：**
+
+2/3 + (-2) = (-1 1/3)
+2/3 - (-2) = 2 2/3
+2/3 * (-2) = (-1 1/3)
+2/3 / (-2) = (-1/3)
+
+**输入样例2：**
+
+5/3 0/6
+
+**输出样例2：**
+
+1 2/3 + 0 = 1 2/3
+1 2/3 - 0 = 1 2/3
+1 2/3 * 0 = 0
+1 2/3 / 0 = Inf
+
+## 我的解决方案
+```c
+#include <stdio.h>
+#include <math.h>
+#include <ctype.h>
+#include <stdbool.h>
+
+typedef struct {
+    long long k; //整数部分
+    long long a; //分子
+    long long b; //分母
+    bool inf; //是否inf
+} Fraction;
+
+void swap(long long *a, long long *b)
+{
+    long long  x;
+    
+    x = *a;
+    *a = *b;
+    *b = x;
+}
+
+//求最大公约数
+long long gcd(long long m, long long n)
+{
+    if (n == 0) {
+        return m;
+    }
+
+    return gcd(n, m % n);
+}
+
+void init(Fraction *fraction)
+{ 
+    fraction->k = fraction->a = 0;
+    fraction->b = 1;
+    fraction->inf = false;
+}
+
+//化简
+void simplify(Fraction *fraction)
+{
+    //分母为0
+    if (fraction->b == 0) {
+        fraction->inf = true;
+
+        return;
+    }
+    fraction->k = fraction->a / fraction->b;
+    //符号移到整数部分
+    if (fraction->k < 0) {
+        fraction->a = fabs(fraction->a);
+    }
+    fraction->a %= fraction->b;
+    if (fraction->a != 0) {
+        int factor = gcd(fraction->b, fabs(fraction->a));
+
+        fraction->b /= factor;
+        fraction->a /= factor;
+    }
+}
+
+//将整数部分化到分数部分
+void extend(Fraction *fraction)
+{
+    //k小于0表示为负数,将符号复原到分数部分
+    if (fraction->k < 0) {
+        fraction->a = -fraction->a;
+    }
+    fraction->a += fraction->k * fraction->b;
+    fraction->k = 0;
+}
+
+//输入一个分数
+void input(Fraction *fraction)
+{ 
+    scanf("%lld/%lld", &fraction->a, &fraction->b); 
+    simplify(fraction);
+}
+
+void plus(Fraction *left, Fraction *right, Fraction *result)
+{
+    extend(left);
+    extend(right);
+    result->a = left->a * right->b + left->b * right->a;
+    result->b = left->b * right->b;
+    simplify(left);
+    simplify(right);
+    simplify(result);
+}
+
+void subtract(Fraction *left, Fraction *right, Fraction *result)
+{
+    extend(left);
+    extend(right);
+    result->a = left->a * right->b - left->b * right->a;
+    result->b = left->b * right->b;
+    simplify(left);
+    simplify(right);
+    simplify(result);
+}
+
+void multiply(Fraction *left, Fraction *right, Fraction *result)
+{
+    extend(left);
+    extend(right);
+    result->a = left->a * right->a;
+    result->b = left->b * right->b;
+    simplify(left);
+    simplify(right);
+    simplify(result);
+}
+
+void divide(Fraction *left, Fraction *right, Fraction *result)
+{
+    extend(left);
+    extend(right);
+    result->a = fabs(left->a) * right->b;
+    result->b = left->b * fabs(right->a);
+    if (left->a < 0 && right->a >= 0 || 
+        left->a >= 0 && right->a < 0) {
+        result->a = -result->a;
+    }
+    simplify(left);
+    simplify(right);
+    simplify(result);
+}
+
+void output_(const Fraction *fraction)
+{
+    if (fraction->k) {
+        printf("%lld", fraction->k);
+        //分数部分不为零时才打印空格
+        if (fraction->a) {
+            putchar(' ');
+        }
+    }
+    if (fraction->a) {
+        printf("%lld/%lld", fraction->a, fraction->b);
+    }
+}
+
+//输出一个分数
+void output(const Fraction *fraction)
+{
+    if (fraction->inf) {
+        printf("Inf");
+        return;
+    }
+
+    if (fraction->k < 0 || fraction->a < 0) {
+        printf("(");
+        output_(fraction);
+        printf(")");
+    }
+    else if (fraction->k > 0 || fraction->a > 0) {
+        output_(fraction);
+    }
+    else if (fraction->k == 0) { //整数部分和分数部分都为零
+        printf("0");
+    }
+}
+
+int main(void)
+{
+    Fraction a, b, c;
+
+    init(&a);
+    init(&b);
+    init(&c);
+    input(&a);
+    input(&b);
+
+    plus(&a, &b, &c);
+    output(&a);
+    printf(" + ");
+    output(&b);
+    printf(" = ");
+    output(&c);
+    printf("\n");
+    subtract(&a, &b, &c);
+    output(&a);
+    printf(" - ");
+    output(&b);
+    printf(" = ");
+    output(&c);
+    printf("\n");
+    multiply(&a, &b, &c);
+    output(&a);
+    printf(" * ");
+    output(&b);
+    printf(" = ");
+    output(&c);
+    printf("\n");
+    divide(&a, &b, &c);
+    output(&a);
+    printf(" / ");
+    output(&b);
+    printf(" = ");
+    output(&c);
+    printf("\n");
+
+    return 0;
+}
+```

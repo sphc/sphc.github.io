@@ -1,0 +1,76 @@
+---
+title: PAT 1023.Have Fun with Number
+mathjax: true
+toc: true
+categories: 'PAT题解[甲级]'
+tags:
+  - PAT
+abbrlink: '69905272'
+date: 2018-02-08 22:58:09
+---
+## 题目
+Notice that the number 123456789 is a 9-digit number consisting exactly the numbers from 1 to 9, with no duplication. Double it we will obtain 246913578, which happens to be another 9-digit number consisting exactly the numbers from 1 to 9, only in a different permutation. Check to see the result if we double it again!
+
+Now you are suppose to check if there are more numbers with this property. That is, double a given number with k digits, you are to tell if the resulting number consists of only a permutation of the digits in the original number.
+
+**Input Specification:**
+
+Each input file contains one test case. Each case contains one positive integer with no more than 20 digits.
+
+**Output Specification:**
+
+For each test case, first print in a line "Yes" if doubling the input number gives a number that consists of only a permutation of the digits in the original number, or "No" if not. Then in the next line, print the doubled number.
+
+**Sample Input:**
+
+1234567899
+
+**Sample Output:**
+
+Yes
+2469135798
+
+## 我的解决方案
+```cpp
+#include <iostream>
+#include <algorithm>
+#include <string>
+
+//解题思路:
+//1.数存入string
+//2.用另一个string保存doubling后的结果
+//3.sort排序后若一样,则第doubling后的数是原数的一个排列
+
+using namespace std;
+
+string doubling(string num)
+{
+    int flag = 0; //进位
+
+    for (string::reverse_iterator i = num.rbegin(); i != num.rend(); ++i) {
+        int digit = flag + (*i - '0') * 2;
+        flag = digit / 10;
+        *i = digit % 10 + '0';
+    }
+
+    if (flag) {
+        num = static_cast<char>(flag + '0') + num;
+    }
+
+    return num;
+}
+
+int main()
+{
+    string original, result, tmp;
+
+    cin >> original;
+    tmp = result = doubling(original); 
+    sort(original.begin(), original.end());
+    sort(tmp.begin(), tmp.end());
+    cout << (tmp == original ? "Yes" : "No") << endl;
+    cout << result << endl;
+
+    return 0;
+}
+```

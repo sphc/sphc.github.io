@@ -1,0 +1,170 @@
+---
+title: PAT 1075.链表元素分类
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: 459619ea
+date: 2018-01-29 12:25:31
+---
+## 题目
+给定一个单链表，请编写程序将链表元素进行分类排列，使得所有负值元素都排在非负值元素的前面，而[0, K]区间内的元素都排在大于K的元素前面。但每一类内部元素的顺序是不能改变的。例如：给定链表为 18→7→-4→0→5→-6→10→11→-2，K为10，则输出应该为 -4→-6→-2→7→0→5→10→18→11。
+
+**输入格式：**
+
+每个输入包含1个测试用例。每个测试用例第1行给出：第1个结点的地址；结点总个数，即正整数N (<= 10<sup>5</sup>)；以及正整数K (<=1000)。结点的地址是5位非负整数，NULL地址用-1表示。
+
+接下来有N行，每行格式为：
+
+Address Data Next
+
+其中Address是结点地址；Data是该结点保存的数据，为[-10<sup>5</sup>, 10<sup>5</sup>]区间内的整数；Next是下一结点的地址。题目保证给出的链表不为空。
+
+**输出格式：**
+
+对每个测试用例，按链表从头到尾的顺序输出重排后的结果链表，其上每个结点占一行，格式与输入相同。
+
+**输入样例：**
+
+00100 9 10
+23333 10 27777
+00000 0 99999
+00100 18 12309
+68237 -6 23333
+33218 -4 00000
+48652 -2 -1
+99999 5 68237
+27777 11 48652
+12309 7 33218
+
+**输出样例：**
+
+33218 -4 68237
+68237 -6 48652
+48652 -2 12309
+12309 7 00000
+00000 0 99999
+99999 5 23333
+23333 10 00100
+00100 18 27777
+27777 11 -1
+
+## 我的解决方案
+```c
+#include <stdio.h>
+
+#define SIZE 100100
+#define null -1
+
+typedef struct {
+    int data;
+    int next;
+} Node;
+
+//初始化链表,构造头结点head
+void initList(Node *list, int *head)
+{
+    static int start = 100000;
+
+    *head = start++;
+    list[*head].next = null;
+}
+
+//删除head后的结点
+int deleteNode(Node *list, int head)
+{ 
+    int tmp = list[head].next;
+
+    list[head].next = list[tmp].next; 
+
+    return tmp;
+}
+
+//将node插入到head后
+void insertNode(Node *list, int head, int node)
+{
+    list[node].next = list[head].next;
+    list[head].next = node;
+}
+
+//打印以head为头结点的链表
+void printList(Node *list, int head)
+{
+    int p = list[head].next;
+
+    while (p != null) {
+        printf("%.5d %d ", p, list[p].data);
+        printf(list[p].next != null ? "%.5d\n" : "%d\n", list[p].next);
+        p = list[p].next;
+    }
+}
+
+int main(void)
+{
+    int n, k;
+    //head1指向小于0的元素构成的链表
+    //head2指向[0,k]区间元素构成的链表
+    //head3指向大于k的元素构成的链表
+    int head1, head2, head3;
+    int p, q, r;
+    Node list[SIZE];
+
+    initList(list, &head1);
+    initList(list, &head2);
+    initList(list, &head3);
+    scanf("%d%d%d", &list[head3].next, &n, &k);
+
+    //输入链表
+    for (int i = 0; i < n; ++i) {
+        int add;
+
+        scanf("%d", &add);
+        scanf("%d%d", &list[add].data, &list[add].next);
+    }
+
+    p = head3;
+    q = head1;
+    r = head2;
+
+    //链表元素分类
+    while (list[p].next != null) {
+        if (list[list[p].next].data < 0) {
+            int t = deleteNode(list, p);
+
+            insertNode(list, q, t);
+            q = list[q].next;
+        }
+        else if (list[list[p].next].data <= k) {
+            int t = deleteNode(list, p);
+
+            insertNode(list, r, t);
+            r = list[r].next;
+        }
+        else {
+            p = list[p].next;
+        }
+    }
+
+    //连接3个链表
+    if (q != head1 && r != head2) {
+        list[q].next = list[head2].next;
+        list[r].next = list[head3].next;
+    }
+    else if (q == head1) {
+        head1 = head2;
+        list[r].next = list[head3].next;
+    }
+    else if (r == head2) {
+        list[q].next = list[head3].next;
+    }
+    else {
+        head1 = head3;
+    }
+
+    //打印结果
+    printList(list, head1);
+
+    return 0;
+}
+```

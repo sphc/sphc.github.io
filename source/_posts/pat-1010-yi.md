@@ -1,0 +1,55 @@
+---
+title: PAT 1010.一元多项式求导
+categories: 'PAT题解[乙级]'
+mathjax: true
+toc: true
+tags:
+  - PAT
+abbrlink: 28998bd0
+date: 2017-12-01 22:07:07
+---
+## 题目
+设计函数求一元多项式的导数。（注：x<sup>n</sup>（n为整数）的一阶导数为n*x<sup>n-1</sup>。）
+
+**输入格式：** 以指数递降方式输入多项式非零项系数和指数（绝对值均为不超过1000的整数）。数字间以空格分隔。
+
+**输出格式：** 以与输入相同的格式输出导数多项式非零项的系数和指数。数字间以空格分隔，但结尾不能有多余空格。注意”零多项式“的指数和系数都是0，但是表示为”0 0“。
+
+**输入样例：**
+
+3 4 -5 2 6 1 -2 0
+
+**输出样例：**
+
+12 3 -10 1 6 0
+
+## 我的解决方案
+```c
+#include <stdio.h>
+#include <stdbool.h>
+
+int main(void)
+{
+    int expo, coef;
+    bool flag = false;
+
+    while (scanf("%d%d", &expo, &coef) == 2) {
+        expo *= coef--;
+        if (expo) {
+            if (flag) {
+                putchar(' ');
+            }
+            printf("%d %d", expo, coef);
+            flag = true;
+        }
+    }
+   
+    //没有导数要输出0 0
+    if (!flag) {
+        printf("0 0");
+    }
+    putchar('\n');
+
+    return 0;
+}
+```

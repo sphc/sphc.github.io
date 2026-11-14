@@ -1,0 +1,53 @@
+---
+title: PAT 1021.个位数统计
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: 50b10578
+date: 2017-12-15 21:42:58
+---
+## 题目
+给定一个k位整数N = d<sub>k-1</sub>*10<sup>k-1</sup> + ... + d<sub>1</sub>*10<sup>1</sup> + d<sub>0</sub> (0<=d<sub>i</sub><=9, i=0,...,k-1, d<sub>k-1</sub>>0)，请编写程序统计每种不同的个位数字出现的次数。例如：给定N = 100311，则有2个0，3个1，和1个3。
+
+**输入格式：**
+
+每个输入包含1个测试用例，即一个不超过1000位的正整数N。
+
+**输出格式：**
+
+对N中每一种不同的个位数字，以D:M的格式在一行中输出该位数字D及其在N中出现的次数M。要求按D的升序输出。
+
+**输入样例：**
+
+100311
+
+**输出样例：**
+
+0:2
+1:3
+3:1
+
+## 我的解决方案
+```c
+#include <stdio.h>
+
+int main(void)
+{
+    int count[10] = {0};
+    int c;
+
+    while ((c = getchar()) != '\n' && c != EOF) {
+        ++count[c - '0'];
+    }
+
+    for (int i = 0; i < 10; ++i) {
+        if (count[i]) {
+            printf("%d:%d\n", i, count[i]);
+        }
+    }
+
+    return 0;
+}
+```

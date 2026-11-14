@@ -1,0 +1,109 @@
+---
+title: PAT 1081.检查密码
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: 102dba9e
+date: 2018-03-24 12:47:51
+---
+
+## 题目
+本题要求你帮助某网站的用户注册模块写一个密码合法性检查的小功能。该网站要求用户设置的密码必须由不少于6个字符组成，并且只能有英文字母、数字和小数点"."，还必须既有字母也有数字。 
+
+**输入格式：**
+
+输入第一行给出一个正整数 N（<=100），随后 N 行，每行给出一个用户设置的密码，为不超过80个字符的非空字符串，以回车结束。 
+
+**输出格式：**
+
+对每个用户的密码，在一行中输出系统反馈信息，分以下5种： 
+* 如果密码合法，输出“Your password is wan mei.”； 
+* 如果密码太短，不论合法与否，都输出“Your password is tai duan le.”； 
+* 如果密码长度合法，但存在不合法字符，则输出“Your password is tai luan le.”； 
+* 如果密码长度合法，但只有字母没有数字，则输出“Your password needs shu zi.”； 
+* 如果密码长度合法，但只有数字没有字母，则输出“Your password needs zi mu.”。 
+
+**输入样例：**
+
+5
+123s
+zheshi.wodepw
+1234.5678
+WanMei23333
+pass*word.6
+
+**输出样例：**
+
+Your password is tai duan le.
+Your password needs shu zi.
+Your password needs zi mu.
+Your password is wan mei.
+Your password is tai luan le.
+
+## 我的解决方案
+```cpp
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
+
+#define SIZE 100
+
+//读取一行,丢弃换行
+void getLine(char *s, int size)
+{
+    fgets(s, SIZE, stdin);
+    s[strlen(s) - 1] = '\0';
+}
+
+void check(char *s)
+{
+    bool hasDigit = false, hasAlpha = false;
+
+    if (strlen(s) < 6) {
+        printf("Your password is tai duan le.\n");
+        return;
+    }
+    else {
+        while (*s) {
+            if (isalpha(*s)) {
+                hasAlpha = true;
+            }
+            else if (isdigit(*s)) {
+                hasDigit = true;
+            }
+            else if (*s != '.') {
+                printf("Your password is tai luan le.\n");
+                return;
+            }
+            ++s;
+        }
+    }
+    if (!hasAlpha) {
+        printf("Your password needs zi mu.\n");
+    } 
+    else if (!hasDigit) {
+        printf("Your password needs shu zi.\n");
+    }
+    else {
+        printf("Your password is wan mei.\n");
+    }
+}
+
+int main(void)
+{
+    int n;
+    char s[SIZE];
+
+    scanf("%d", &n);
+    getLine(s, SIZE);
+    while (n--) {
+        getLine(s, SIZE);
+        check(s);
+    }
+
+    return 0;
+}
+```

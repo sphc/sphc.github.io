@@ -1,0 +1,107 @@
+---
+title: PAT 1033.旧键盘打字
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: '90169588'
+date: 2017-12-18 21:16:19
+---
+## 题目
+旧键盘上坏了几个键，于是在敲一段文字的时候，对应的字符就不会出现。现在给出应该输入的一段文字、以及坏掉的那些键，打出的结果文字会是怎样？
+
+**输入格式：**
+
+输入在2行中分别给出坏掉的那些键、以及应该输入的文字。其中对应英文字母的坏键以大写给出；每段文字是不超过10<sup>5</sup>个字符的串。可用的字符包括字母[a-z, A-Z]、数字0-9、以及下划线“_”（代表空格）、“,”、“.”、“-”、“+”（代表上档键）。题目保证第2行输入的文字串非空。
+
+注意：如果上档键坏掉了，那么大写的英文字母无法被打出。
+
+**输出格式：**
+
+在一行中输出能够被打出的结果文字。如果没有一个字符能被打出，则输出空行。
+
+**输入样例：**
+
+7+IE.
+7_This_is_a_test.
+
+**输出样例：**
+
+_hs_s_a_tst
+
+## 我的解决方案
+```c
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+#define NPOS -1 //表示未找到
+
+typedef bool (*valid)(int);
+
+char badKey[100010];
+
+int cmp(const void *first, const void *second)
+{ return strcmp((char *)first, (char *)second); }
+
+int binarySearch(int c, int left, int right)
+{
+    int mid = (left + right) / 2;
+
+    if (left > right) {
+        return NPOS;
+    }
+    else if (badKey[mid] < c) {
+        return binarySearch(c, mid + 1, right);
+    }
+    else if (badKey[mid] > c) {
+        return binarySearch(c, left, mid - 1);
+    }
+    else {
+        return mid;
+    }
+}
+
+//检查是否可以打出 
+bool check1(int c)
+{ 
+    if (isalpha(c)) {
+        c = toupper(c);
+    }
+
+    return binarySearch(c, 0, strlen(badKey)) == NPOS; 
+}
+
+//上档键坏了的版本
+bool check2(int c)
+{ 
+    if (isalpha(c) && isupper(c)) {
+        return false;
+    }
+
+    return check1(c); 
+}
+
+int main(void)
+{
+    int c;
+    int flag;
+    valid isValid[2] = { check1, check2 }; 
+
+    gets(badKey);
+    qsort(badKey, strlen(badKey), sizeof(char), cmp);
+    flag = !check1('+'); //若找到'+'号，表示上档键坏了,调用换挡键坏了的检查函数
+
+    while ((c = getchar()) != '\n' && c != EOF) { 
+        if (isValid[flag](c)) {
+            putchar(c);
+        }
+    }
+    putchar('\n');
+
+    return 0;
+}
+```

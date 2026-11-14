@@ -1,0 +1,65 @@
+---
+title: PAT 1017.A除以B
+mathjax: true
+toc: true
+categories: 'PAT题解[乙级]'
+tags:
+  - PAT
+abbrlink: 3a243530
+date: 2017-12-12 17:46:53
+---
+## 题目
+本题要求计算A/B，其中A是不超过1000位的正整数，B是1位正整数。你需要输出商数Q和余数R，使得A = B * Q + R成立。
+
+**输入格式：**
+
+输入在1行中依次给出A和B，中间以1空格分隔。
+
+**输出格式：**
+
+在1行中依次输出Q和R，中间以1空格分隔。
+
+**输入样例：**
+
+123456789050987654321 7
+
+**输出样例：**
+
+17636684150141093474 3
+
+## 我的解决方案
+```c
+#include <stdio.h>
+#include <stdbool.h>
+
+int main(void)
+{
+    char a[1010]; //输入的数A
+    char q[1010]; //商Q
+    int size = 0; //商的位数
+    int b, r = 0; //b:除数; r:余数R
+    int num; 
+    const char *p;
+    bool firstNumZero = true; //第一个数为零
+
+    scanf("%s%d", a, &b);
+    p = a;
+    while (*p) {
+        num = r * 10 + (*p++) - '0'; //字符串中的每一位数与之前未除尽的数的和
+        r = num % b;
+        if (firstNumZero && num / b) { //遇到第一次商不为零的情况，
+            firstNumZero = false;       //意味着可将该数放入数组
+        }                              //否则，不放入数组
+        if (!firstNumZero) { //如果第一个数不为零，便可将商放入数组
+            q[size++] = num / b + '0';
+        }
+    }
+    if (!size) { //商为零的情况
+        q[size++] = '0';
+    }
+    q[size] = '\0';
+    printf("%s %d\n", q, r);
+
+    return 0;
+}
+```
