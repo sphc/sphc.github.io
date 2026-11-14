@@ -1,0 +1,74 @@
+name: Deploy Hexo site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply uploaded snapshot
+        run: |
+          if [ -f sphc-github-pages-clean.zip ]; then
+            unzip -q -o sphc-github-pages-clean.zip -d /tmp/snapshot
+            rm -rf /tmp/snapshot/.github
+            rm -f sphc-github-pages-clean.zip
+            find . -mindepth 1 -maxdepth 1 ! -name .git ! -name .github -exec rm -rf {} +
+            cp -a /tmp/snapshot/. .
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A
+            git commit -m "Apply clean Hexo snapshot"
+            git push origin HEAD:main
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 11.14.0
+          cache: npm
+
+      - name: Install Hexo CLI
+        run: npm install --global hexo-cli@2.0.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: |
+          hexo clean
+          hexo generate
+          cp source/CNAME public/CNAME
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
