@@ -39,6 +39,18 @@ jobs:
           hexo generate
           cp source/CNAME public/CNAME
 
+      - name: Submit URLs to Baidu
+        env:
+          BAIDU_PUSH_TOKEN: ${{ secrets.BAIDU_PUSH_TOKEN }}
+        run: |
+          if [ -z "$BAIDU_PUSH_TOKEN" ]; then
+            echo "BAIDU_PUSH_TOKEN is not set, skipping Baidu URL submission."
+            exit 0
+          fi
+          curl -s -H 'Content-Type:text/plain' \
+            --data-binary @public/baidu_urls.txt \
+            "http://data.zz.baidu.com/urls?site=https://jkuvw.xyz&token=$BAIDU_PUSH_TOKEN"
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
