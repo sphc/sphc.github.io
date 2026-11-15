@@ -1,0 +1,40 @@
+---
+import type { GetStaticPaths } from "astro";
+import PostListPage from "@/components/compat/PostListPage.astro";
+import { siteConfig } from "@/config";
+import { getSortedPosts } from "@/utils/content-utils";
+import { makePage, pageNumbers } from "@/utils/compat-pagination";
+import { getCategorySlug } from "@/utils/url-utils";
+
+export const getStaticPaths = (async () => {
+	const posts = await getSortedPosts();
+	const pageSize = siteConfig.pagination.postsPerPage;
+	const categories = new Map<string, string>();
+	for (const post of posts) {
+		const raw = post.data.category;
+		if (raw) categories.set(getCategorySlug(raw), raw);
+	}
+	const paths = [];
+	for (const [slug, name] of categories) {
+		const categoryPosts = posts.filter(
+			p => p.data.category && getCategorySlug(p.data.category) === slug
+		);
+		const basePath = `/categories/${slug}`;
+		for (const n of pageNumbers(categoryPosts.length, pageSize)) {
+			paths.push({
+				params: { category: slug, page: String(n) },
+				props: {
+					page: makePage(categoryPosts, n, pageSize, basePath),
+					basePath,
+					heading: `分类：${name} · 第 ${n} 页`,
+				},
+			});
+		}
+	}
+	return paths;
+}) satisfies GetStaticPaths;
+
+const { page, basePath, heading } = Astro.props;
+---
+
+<PostListPage page={page} basePath={basePath} title={heading} heading={heading} />

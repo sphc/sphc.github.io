@@ -1,6 +1,6 @@
 ---
 title: "PAT 1023.组个最小数"
-pubDatetime: 2017-12-15T21:50:44+08:00
+published: 2017-12-15T21:50:44+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

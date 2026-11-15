@@ -1,0 +1,36 @@
+---
+import Pagination from "@/components/common/Pagination.astro";
+import PostPage from "@/components/layout/PostPage.astro";
+import MainGridLayout from "@/layouts/MainGridLayout.astro";
+
+interface Props {
+	page: any;
+	basePath?: string;
+	title?: string;
+	heading?: string;
+	description?: string;
+}
+
+const { page, basePath = "", title, heading, description } = Astro.props;
+const interval = 50;
+---
+
+<MainGridLayout title={title} heading={heading} description={description}>
+  {
+    page.data.length > 0 ? (
+      <PostPage page={page} />
+    ) : (
+      <p class="text-center text-neutral-500 py-8">暂无文章</p>
+    )
+  }
+  {
+    page.total > page.size && (
+      <Pagination
+        class="mx-auto onload-animation"
+        page={page}
+        basePath={basePath}
+        style={`animation-delay: calc(var(--content-delay) + ${page.data.length * interval}ms)`}
+      />
+    )
+  }
+</MainGridLayout>

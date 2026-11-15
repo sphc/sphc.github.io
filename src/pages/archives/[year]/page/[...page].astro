@@ -1,0 +1,34 @@
+---
+import type { GetStaticPaths } from "astro";
+import PostListPage from "@/components/compat/PostListPage.astro";
+import { siteConfig } from "@/config";
+import { getSortedPosts } from "@/utils/content-utils";
+import { makePage, pageNumbers, yearMonthOf } from "@/utils/compat-pagination";
+
+export const getStaticPaths = (async () => {
+	const posts = await getSortedPosts();
+	const pageSize = siteConfig.pagination.postsPerPage;
+	const years = [...new Set(posts.map(p => yearMonthOf(p.data.published).year))];
+	const paths = [];
+	for (const year of years) {
+		const yearPosts = posts.filter(
+			p => yearMonthOf(p.data.published).year === year
+		);
+		for (const n of pageNumbers(yearPosts.length, pageSize)) {
+			paths.push({
+				params: { year, page: String(n) },
+				props: {
+					page: makePage(yearPosts, n, pageSize, `/archives/${year}`),
+					basePath: `/archives/${year}`,
+					heading: `${year} 年归档 · 第 ${n} 页`,
+				},
+			});
+		}
+	}
+	return paths;
+}) satisfies GetStaticPaths;
+
+const { page, basePath, heading } = Astro.props;
+---
+
+<PostListPage page={page} basePath={basePath} title={heading} heading={heading} />

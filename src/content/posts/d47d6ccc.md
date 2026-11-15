@@ -1,6 +1,6 @@
 ---
 title: "PAT 1026.程序运行时间"
-pubDatetime: 2017-12-17T00:15:29+08:00
+published: 2017-12-17T00:15:29+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

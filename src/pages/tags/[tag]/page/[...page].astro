@@ -1,0 +1,36 @@
+---
+import type { GetStaticPaths } from "astro";
+import PostListPage from "@/components/compat/PostListPage.astro";
+import { siteConfig } from "@/config";
+import { getSortedPosts } from "@/utils/content-utils";
+import { makePage, pageNumbers } from "@/utils/compat-pagination";
+
+export const getStaticPaths = (async () => {
+	const posts = await getSortedPosts();
+	const pageSize = siteConfig.pagination.postsPerPage;
+	const tags = new Set<string>();
+	for (const post of posts) {
+		for (const tag of post.data.tags ?? []) tags.add(tag);
+	}
+	const paths = [];
+	for (const tag of tags) {
+		const tagPosts = posts.filter(p => (p.data.tags ?? []).includes(tag));
+		const basePath = `/tags/${encodeURIComponent(tag)}`;
+		for (const n of pageNumbers(tagPosts.length, pageSize)) {
+			paths.push({
+				params: { tag, page: String(n) },
+				props: {
+					page: makePage(tagPosts, n, pageSize, basePath),
+					basePath,
+					heading: `标签：${tag} · 第 ${n} 页`,
+				},
+			});
+		}
+	}
+	return paths;
+}) satisfies GetStaticPaths;
+
+const { page, basePath, heading } = Astro.props;
+---
+
+<PostListPage page={page} basePath={basePath} title={heading} heading={heading} />

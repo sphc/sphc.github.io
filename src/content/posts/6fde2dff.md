@@ -1,6 +1,6 @@
 ---
 title: "PAT 1055.集体照"
-pubDatetime: 2018-01-26T21:49:59+08:00
+published: 2018-01-26T21:49:59+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

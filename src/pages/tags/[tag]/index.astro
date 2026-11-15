@@ -1,67 +1,32 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
-import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import Breadcrumb from "@/components/Breadcrumb.astro";
-import Main from "@/components/Main.astro";
-import Card from "@/components/Card.astro";
-import Footer from "@/components/Footer.astro";
-import Pager from "@/components/Pager.astro";
-import { getUniqueTags } from "@/utils/getUniqueTags";
-import { getSortedPosts } from "@/utils/getSortedPosts";
-import { postFilter } from "@/utils/postFilter";
-import { slugifyAll } from "@/utils/slugify";
-import { pageCount, slicePage } from "@/utils/pagination";
-import { useTranslations } from "@/i18n";
-import config from "@/config";
+import PostListPage from "@/components/compat/PostListPage.astro";
+import { siteConfig } from "@/config";
+import { getSortedPosts } from "@/utils/content-utils";
+import { makePage } from "@/utils/compat-pagination";
 
 export const getStaticPaths = (async () => {
-  const posts = await getCollection("posts");
-  const tags = getUniqueTags(posts);
-
-  return tags.map(({ tag, tagName }) => ({
-    params: { tag: tagName },
-    props: { tagSlug: tag, tagName },
-  }));
+	const posts = await getSortedPosts();
+	const pageSize = siteConfig.pagination.postsPerPage;
+	const tags = new Set<string>();
+	for (const post of posts) {
+		for (const tag of post.data.tags ?? []) tags.add(tag);
+	}
+	return [...tags].map(tag => {
+		const tagPosts = posts.filter(p => (p.data.tags ?? []).includes(tag));
+		const basePath = `/tags/${encodeURIComponent(tag)}`;
+		return {
+			params: { tag },
+			props: {
+				page: makePage(tagPosts, 1, pageSize, basePath),
+				basePath,
+				heading: `标签：${tag}`,
+			},
+		};
+	});
 }) satisfies GetStaticPaths;
 
-const { tagSlug, tagName } = Astro.props as {
-  tagSlug: string;
-  tagName: string;
-};
-const locale = Astro.currentLocale ?? config.site.lang;
-const t = useTranslations(locale);
-
-const posts = await getCollection("posts");
-const tagPosts = getSortedPosts(
-  posts
-    .filter(postFilter)
-    .filter(post => slugifyAll(post.data.tags).includes(tagSlug))
-);
-
-const pageSize = config.posts.perPage;
-const lastPage = pageCount(tagPosts.length, pageSize);
-const currentPage = 1;
-const pagePosts = slicePage(tagPosts, currentPage, pageSize);
-const basePath = `/tags/${tagName}`;
+const { page, basePath, heading } = Astro.props;
 ---
 
-<Layout title={`${t.pages.tagTitle}: ${tagName} | ${config.site.title}`}>
-  <Header />
-
-  <Breadcrumb />
-
-  <Main
-    pageTitle={`${t.pages.tagTitle}: ${tagName}`}
-    pageDesc={`${t.pages.tagDesc} "${tagName}".`}
-  >
-    <ul>
-      {pagePosts.map(post => <Card {...post} />)}
-    </ul>
-  </Main>
-
-  <Pager {currentPage} {lastPage} {basePath} />
-
-  <Footer noMarginTop={lastPage > 1} />
-</Layout>
+<PostListPage page={page} basePath={basePath} title={heading} heading={heading} />

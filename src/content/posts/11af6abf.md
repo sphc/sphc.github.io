@@ -1,6 +1,6 @@
 ---
 title: "PAT 1028.人口普查"
-pubDatetime: 2017-12-17T00:20:26+08:00
+published: 2017-12-17T00:20:26+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

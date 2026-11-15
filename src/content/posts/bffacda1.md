@@ -1,6 +1,6 @@
 ---
 title: "PAT 1042.字符统计"
-pubDatetime: 2017-12-22T22:39:28+08:00
+published: 2017-12-22T22:39:28+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

@@ -1,6 +1,6 @@
 ---
 title: "PAT 1044.火星数字"
-pubDatetime: 2017-12-22T22:43:25+08:00
+published: 2017-12-22T22:43:25+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

@@ -1,6 +1,6 @@
 ---
 title: "PAT 1011.A+B和C"
-pubDatetime: 2017-12-04T20:55:55+08:00
+published: 2017-12-04T20:55:55+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

@@ -1,6 +1,6 @@
 ---
 title: "PAT 1070.结绳"
-pubDatetime: 2018-01-25T16:46:45+08:00
+published: 2018-01-25T16:46:45+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

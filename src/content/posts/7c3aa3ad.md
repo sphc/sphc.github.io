@@ -1,6 +1,6 @@
 ---
 title: "PAT 1053.住房空置率"
-pubDatetime: 2017-12-31T19:57:55+08:00
+published: 2017-12-31T19:57:55+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

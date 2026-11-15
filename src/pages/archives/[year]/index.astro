@@ -1,52 +1,30 @@
 ---
 import type { GetStaticPaths } from "astro";
-import { getCollection, type CollectionEntry } from "astro:content";
-import Layout from "@/layouts/Layout.astro";
-import Header from "@/components/Header.astro";
-import Breadcrumb from "@/components/Breadcrumb.astro";
-import Main from "@/components/Main.astro";
-import Footer from "@/components/Footer.astro";
-import ArchiveList from "@/components/ArchiveList.astro";
-import Pager from "@/components/Pager.astro";
-import { getArchiveBuckets } from "@/utils/archive";
-import { getSortedPosts } from "@/utils/getSortedPosts";
-import { postFilter } from "@/utils/postFilter";
-import { pageCount, slicePage } from "@/utils/pagination";
-import config from "@/config";
+import PostListPage from "@/components/compat/PostListPage.astro";
+import { siteConfig } from "@/config";
+import { getSortedPosts } from "@/utils/content-utils";
+import { makePage, yearMonthOf } from "@/utils/compat-pagination";
 
 export const getStaticPaths = (async () => {
-  const posts = await getCollection("posts");
-  const buckets = getArchiveBuckets(posts.filter(postFilter));
-
-  return buckets.map(bucket => ({
-    params: { year: bucket.year },
-    props: { yearPosts: getSortedPosts(bucket.posts) },
-  }));
+	const posts = await getSortedPosts();
+	const pageSize = siteConfig.pagination.postsPerPage;
+	const years = [...new Set(posts.map(p => yearMonthOf(p.data.published).year))];
+	return years.map(year => {
+		const yearPosts = posts.filter(
+			p => yearMonthOf(p.data.published).year === year
+		);
+		return {
+			params: { year },
+			props: {
+				page: makePage(yearPosts, 1, pageSize, `/archives/${year}`),
+				basePath: `/archives/${year}`,
+				heading: `${year} 年归档`,
+			},
+		};
+	});
 }) satisfies GetStaticPaths;
 
-type Props = {
-  yearPosts: CollectionEntry<"posts">[];
-};
-
-const { yearPosts } = Astro.props;
-const year = Astro.params.year!;
-
-const pageSize = config.posts.perPage;
-const lastPage = pageCount(yearPosts.length, pageSize);
-const currentPage = 1;
-const pagePosts = slicePage(yearPosts, currentPage, pageSize);
+const { page, basePath, heading } = Astro.props;
 ---
 
-<Layout title={`${year} 年归档 | ${config.site.title}`}>
-  <Header />
-
-  <Breadcrumb />
-
-  <Main pageTitle={`${year} 年`} pageDesc={`${year} 年发布的 ${yearPosts.length} 篇文章`}>
-    <ArchiveList posts={pagePosts} />
-  </Main>
-
-  <Pager {currentPage} {lastPage} basePath={`/archives/${year}`} />
-
-  <Footer noMarginTop={lastPage > 1} />
-</Layout>
+<PostListPage page={page} basePath={basePath} title={heading} heading={heading} />

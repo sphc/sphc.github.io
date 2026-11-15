@@ -1,6 +1,6 @@
 ---
 title: "PAT 1005.继续(3n+1)猜想"
-pubDatetime: 2018-01-27T20:28:26+08:00
+published: 2018-01-27T20:28:26+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

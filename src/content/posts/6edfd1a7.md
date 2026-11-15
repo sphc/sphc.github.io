@@ -1,6 +1,6 @@
 ---
 title: "PAT 1018.锤子剪刀布"
-pubDatetime: 2017-12-13T12:33:28+08:00
+published: 2017-12-13T12:33:28+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

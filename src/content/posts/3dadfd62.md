@@ -1,6 +1,6 @@
 ---
 title: "PAT 1016.部分A+B"
-pubDatetime: 2017-12-12T17:46:41+08:00
+published: 2017-12-12T17:46:41+08:00
 description: ""
 category: "PAT题解[乙级]"
 tags:

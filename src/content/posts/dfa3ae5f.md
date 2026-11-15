@@ -1,6 +1,6 @@
 ---
 title: "PAT 1054.The Dominant Color"
-pubDatetime: 2018-02-12T19:31:58+08:00
+published: 2018-02-12T19:31:58+08:00
 description: ""
 category: "PAT题解[甲级]"
 tags:
