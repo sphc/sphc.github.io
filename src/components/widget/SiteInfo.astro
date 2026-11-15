@@ -43,12 +43,11 @@ try {
 // Node 版本
 const nodeVersion = process.version;
 
-// 包管理器版本（从 npm_config_user_agent 解析，兼容 npm / pnpm / yarn / bun）
-let packageManager = "unknown";
-const userAgent = process.env.npm_config_user_agent || "";
-const packageManagerMatch = userAgent.match(/^(npm|pnpm|yarn|bun)\/(\d+(?:\.\d+)*)/);
-if (packageManagerMatch) {
-	packageManager = `${packageManagerMatch[1]} v${packageManagerMatch[2]}`;
+// npm 版本（从构建进程的用户代理环境变量中读取）
+let npmVersion = "unknown";
+const npmMatch = (process.env.npm_config_user_agent || "").match(/npm\/(\d+(?:\.\d+)*)/);
+if (npmMatch) {
+	npmVersion = `v${npmMatch[1]}`;
 }
 
 // 构建时间
@@ -141,9 +140,9 @@ const detailItems: {
 		value: nodeVersion,
 	},
 	{
-		icon: "mdi:package-variant-closed",
-		label: i18n(I18nKey.siteInfoPackageManager),
-		value: packageManager,
+		icon: "fa7-brands:npm",
+		label: "npm",
+		value: npmVersion,
 	},
 	{
 		icon: "material-symbols:build-outline",

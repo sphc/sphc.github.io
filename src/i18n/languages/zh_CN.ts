@@ -451,7 +451,6 @@ export const zh_CN: Translation = {
 	[Key.siteInfoBlogVersion]: "博客版本",
 	[Key.siteInfoAstroVersion]: "Astro",
 	[Key.siteInfoNodeVersion]: "Node",
-	[Key.siteInfoPackageManager]: "包管理器",
 	[Key.siteInfoSystem]: "系统信息",
 	[Key.siteInfoExpand]: "展开构建信息",
 	[Key.siteInfoCollapse]: "收起构建信息",

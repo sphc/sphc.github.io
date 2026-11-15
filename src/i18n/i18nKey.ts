@@ -445,7 +445,6 @@ enum I18nKey {
 	siteInfoBlogVersion = "siteInfoBlogVersion",
 	siteInfoAstroVersion = "siteInfoAstroVersion",
 	siteInfoNodeVersion = "siteInfoNodeVersion",
-	siteInfoPackageManager = "siteInfoPackageManager",
 	siteInfoSystem = "siteInfoSystem",
 	siteInfoExpand = "siteInfoExpand",
 	siteInfoCollapse = "siteInfoCollapse",

@@ -453,7 +453,6 @@ export const zh_TW: Translation = {
 	[Key.siteInfoBlogVersion]: "部落格版本",
 	[Key.siteInfoAstroVersion]: "Astro",
 	[Key.siteInfoNodeVersion]: "Node",
-	[Key.siteInfoPackageManager]: "套件管理器",
 	[Key.siteInfoSystem]: "系統資訊",
 	[Key.siteInfoExpand]: "展開構建資訊",
 	[Key.siteInfoCollapse]: "收起構建資訊",
